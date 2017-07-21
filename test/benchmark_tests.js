@@ -54,7 +54,7 @@ function displayFiredRules() {
 }
         
 
-Hylar.quiet();
+//Hylar.quiet();
 
 function delay() {
     /*var delay = new Date().getTime() - date;

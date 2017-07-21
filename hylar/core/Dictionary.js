@@ -42,6 +42,46 @@ Dictionary.prototype.clear = function() {
 };
 
 /**
+ * Retrieves statistics of the KB with
+ * - the fact with the largest 'derivedFrom' tag
+ * - the total number of derivedFromTags
+ */
+Dictionary.prototype.getDictionaryStatistics = function() {
+    var size = 0,
+        totalSize = 0,
+        totalConjSize = 0,
+        largestF = null;
+    for (var graph in this.dict) {
+        for (var factStr in this.dict[graph]) {
+            var factExplicitImplicit = this.dict[graph][factStr];
+            for (var i = 0; i < factExplicitImplicit.length; i ++) {
+                var fact = factExplicitImplicit[i];
+                if (fact && fact.causedBy !== undefined) {
+                    var tmpSize = 0;
+                    for (var j = 0; j < fact.causedBy.length; j++) {
+                        tmpSize += fact.causedBy[j].length;
+                    }
+                    if (tmpSize > size) {
+                        size = tmpSize;
+                        largestF = fact;
+                    }
+                    totalConjSize += fact.causedBy.length;
+                    totalSize += tmpSize;
+                }
+            }
+        }
+    }
+    return {
+        'total_cause_conjunction_size': totalConjSize,
+        'total_size': totalSize,
+        'largest_fact_df': {
+            'fact': largestF,
+            'df_size': size
+        }
+    };
+};
+
+/**
  * Returns the fact corresponding to the turtle triple.
  * @param ttl
  * @returns {*}

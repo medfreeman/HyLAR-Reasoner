@@ -46,6 +46,12 @@ console.error = function(msg) {
     }
 };
 
+emitter.on('update', function(hylarInstance) {
+    var stats = hylarInstance.dict.getDictionaryStatistics();
+    console.notify("Total causes: " + stats.total_size);
+    console.notify("Max fact causes list: " + stats.largest_fact_df.df_size);
+});
+
 /**
  * HyLAR main module.
  * @author Mehdi Terdjimi
@@ -190,7 +196,8 @@ Hylar.prototype.treatLoad = function(ontologyTxt, mimeType, graph) {
  */
 Hylar.prototype.query = function(query, reasoningMethod) {
     var sparql = ParsingInterface.parseSPARQL(query),
-        singleWhereQueries = [], that = this;
+        singleWhereQueries = [], that = this,
+        updateResults;
 
     this.updateReasoningMethod(reasoningMethod);
 
@@ -202,10 +209,18 @@ Hylar.prototype.query = function(query, reasoningMethod) {
                 if (ParsingInterface.isUpdateWhere(sparql)) {
                     return this.query(ParsingInterface.updateWhereToConstructWhere(query))
                         .then(function(data) {
-                            return that.query(ParsingInterface.buildUpdateQueryWithConstructResults(sparql, data));
+                            return that.query(ParsingInterface.buildUpdateQueryWithConstructResults(sparql, data))
+                        })
+                        .then(function(res) {
+                            emitter.emit('update', that);
+                            return res;
                         });
                 } else {
-                    return this.treatUpdateWithGraph(query);
+                    return this.treatUpdateWithGraph(query)
+                        .then(function(res) {
+                            emitter.emit('update',that);
+                            return res;
+                        });
                 }
                 break;
             default:
@@ -507,7 +522,7 @@ Hylar.prototype.classify = function() {
             }, 0);
         })
         .then(function() {
-            emitter.emit('classif-ended');
+            emitter.emit('update', that);
             return true;
         });
 };
