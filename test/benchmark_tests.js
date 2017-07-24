@@ -15,6 +15,7 @@ var H = require('../hylar/hylar');
 var owl, ontology, Hylar = new H();
 
 var reasoningMethod = process.env.rm;
+var usedRules = process.env.rl;
 var triples = fs.readFileSync(path.resolve(__dirname + '/ontologies/University0_14.nt')).toString();
 var baseOntoTxt = fs.readFileSync(path.resolve(__dirname + '/ontologies/univ-bench-base-onto.ttl')).toString();
 
@@ -28,8 +29,24 @@ var univ3 = baseOntoTxt + fs.readFileSync(path.resolve(__dirname + '/ontologies/
 
 //univ1=univ3;
 //univ1 += univ2 + univ3; //20k
+switch(usedRules) {
+    case 'equal':
+        Hylar.setRules(OWL2RL.equality);
+        break;
+    case 'trans-inv':
+        Hylar.setRules(OWL2RL.transitivityInverse);
+        break;
+    case 'equiv':
+        Hylar.setRules(OWL2RL.equivalence);
+        break;
+    case 'sub':
+        Hylar.setRules(OWL2RL.subsumption);
+        break; 
+    default:
+        Hylar.setRules(OWL2RL.equality.concat(OWL2RL.transitivityInverse, OWL2RL.equivalence, OWL2RL.subsumption));
+        break;
+}
 
-Hylar.setRules(OWL2RL.equality.concat(OWL2RL.transitivityInverse, OWL2RL.equivalence, OWL2RL.subsumption));
 //Hylar.setRules(OWL2RL.equivalence);
 //Hylar.setRules(OWL2RL.equality);
 //Hylar.setRules(OWL2RL.subsumption);
