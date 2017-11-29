@@ -10,15 +10,17 @@ var showRes = function(res) {
 
 describe('RDFLib tests', function () {
     it('should load an ontology', function () {
-        var ontoStr = fs.readFileSync('./test/ontologies/family.jsonld');
-        $rdf.parse(ontoStr, graph, "#default", 'application/ld+json');    
+        var ontoStr = fs.readFileSync('./test/ontologies/fipa.ttl');
+        $rdf.parse(ontoStr, graph, "http://sites.google.com/site/smartappliancesproject/ontologies/fipa", 'text/turtle');
     });
 
     it('should process SPARQL', function () {
-        var sparql = 'SELECT ?s WHERE { ?s ?p ?o }',
+        var sparql = 'SELECT * WHERE { ?s ?p ?o . }',
             q = $rdf.SPARQLToQuery(sparql, null, graph);
         
-        graph.query(q, showRes, null, null);      
+        graph.query(q, function(result) {
+            1;
+        });
          
     });
 });

@@ -1,5 +1,3 @@
-# baseURI: http://sites.google.com/site/smartappliancesproject/ontologies/fipa
-
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix fipa: <http://sites.google.com/site/smartappliancesproject/ontologies/fipa#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .

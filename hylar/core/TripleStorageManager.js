@@ -205,11 +205,11 @@ TripleStorageManager.prototype.regenerateSideStore = function() {
     var deferred = q.defer(),
         that = this;
 
-    new rdfstore.create(function(err, store) {
+    /*new rdfstore.create(function(err, store) {
         that.sideStore = store;
         deferred.resolve();
     });
-    return deferred.promise;
+    return deferred.promise;*/
 };
 
 TripleStorageManager.prototype.loadIntoSideStore = function(ttl, graph) {
