@@ -7,12 +7,12 @@ var Fact = require('./Logics/Fact'),
     RegularExpressions = require('./RegularExpressions'),
     Utils = require('./Utils');
 
-var rdfext = require('rdf-ext')(),
+var rdfext = require('rdf-ext'),
     q = require('q'),
     sparqlJs = require('sparqljs'),
 
     SparqlParser = new sparqlJs.Parser(),
-    RdfXmlParser = new rdfext.RdfXmlParser();
+    SparqlGenerator = new sparqlJs.Generator();
 
 /**
  * The parsing interface, for transforming facts, triples, turtle or even results bindings
@@ -66,10 +66,17 @@ ParsingInterface = {
      * @returns Object resulting fact
      */
     tripleToFact: function(t, explicit, notUsingValid) {
+        var fact;
         if(explicit === undefined) {
             explicit = true;
         }
-        return new Fact(t.predicate.toString(), t.subject.toString(), t.object.toString()/*.format()*/, [], explicit, [], [], notUsingValid, t.toString())
+
+        if (typeof t.subject === 'string') {
+            fact = new Fact(t.predicate, t.subject, t.object/*.format()*/, [], explicit, [], [], notUsingValid, t.toString());
+        } else  {
+            fact = new Fact(t.predicate.value, t.subject.value, t.object.value/*.format()*/, [], explicit, [], [], notUsingValid, t.toString());
+        }
+        return fact;
     },
 
     triplesToFacts: function(t, explicit, notUsingValid) {
@@ -175,6 +182,10 @@ ParsingInterface = {
      */
     parseSPARQL: function(query) {
         return SparqlParser.parse(query);
+    },
+
+    serializeSPARQL: function(sparql) {
+        return SparqlGenerator.stringify(sparql);
     },
 
     tripleToTurtle: function(triple) {

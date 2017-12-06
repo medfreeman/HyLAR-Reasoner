@@ -158,35 +158,11 @@ Hylar.prototype.load = function(ontologyTxt, mimeType, keepOldValues, graph, rea
 
 Hylar.prototype.treatLoad = function(ontologyTxt, mimeType, graph) {
     var that = this;
-    switch(mimeType) {
-        case 'application/xml':
-            return that.sm.loadRdfXml(ontologyTxt, graph)
-                .then(function() {
-                    console.notify('Store initialized successfully.');
-                    return that.classify();
-                });
-            break;
-        case 'application/rdf+xml':
-            return that.sm.loadRdfXml(ontologyTxt, graph)
-                .then(function() {
-                    return that.classify();
-                });
-            break;
-        case false:
-            console.error('Unrecognized or unsupported mimetype. ' +
-                'Supported formats are rdf/xml, jsonld, turtle, n3');
-            return false;
-            break;
-        default:
 
-            return that.sm.load(ontologyTxt, mimeType, graph)
-                .then(function() {
-                    return that.classify();
-                }, function(error) {                    
-                    console.error(error);
-                    throw error;
-                });
-    }
+    this.sm.load(ontologyTxt, mimeType, graph)
+        .then(function() {
+            return that.classify();
+        });
 };
 
 /**
@@ -392,7 +368,9 @@ Hylar.prototype.treatUpdate = function(update, type) {
             FeDel = ParsingInterface.triplesToFacts(dTriples, true, (that.rMethod == Reasoner.process.it.incrementally));
             return Reasoner.evaluate(FeIns, FeDel, F, that.rMethod, that.rules)
 
-        }).then(function(derivations) {
+        })
+
+        .then(function(derivations) {
             that.registerDerivations(derivations, graph);
             insDel = {
                 insert: ParsingInterface.factsToTurtle(derivations.additions),
@@ -480,46 +458,34 @@ Hylar.prototype.registerDerivations = function(derivations, graph) {
  * @returns {*}
  */
 Hylar.prototype.classify = function() {
-    var that = this, factsChunk, chunks = [], chunksNb = 5000, insertionPromises = [];
-    console.notify('Classification started.');
-    
-    return this.sm.query('CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }')
-        .then(function(r) {
-            var facts = [], triple, _fs, f;
-            for (var i = 0; i <  r.triples.length; i++) {
-                triple = r.triples[i];
-                if(!(
-                        triple.subject.interfaceName == "BlankNode" ||
-                        triple.predicate.interfaceName == "BlankNode" ||
-                        triple.object.interfaceName == "BlankNode"
-                    )) {
-                    _fs = that.dict.get(triple);
-                    if(!_fs) {
-                        f = ParsingInterface.tripleToFact(triple, true, (that.rMethod == Reasoner.process.it.incrementally));
-                        that.dict.put(f);
-                        facts.push(f);
-                    } else {
-                        facts = facts.concat(_fs);
-                    }
-                }
+    var that = this;
+    var data = this.sm.getAll();
+    var facts = [], triple, _fs, f;
 
+    console.notify('Classification started.');
+
+    for (var i = 0; i <  data.length; i++) {
+        triple = data[i];
+        if(!(
+                triple.subject.termType == "BlankNode" ||
+                triple.predicate.termType == "BlankNode" ||
+                triple.object.termType == "BlankNode"
+            )) {
+            _fs = that.dict.get(triple);
+            if(!_fs) {
+                f = ParsingInterface.tripleToFact(triple, true, (that.rMethod == Reasoner.process.it.incrementally));
+                that.dict.put(f);
+                facts.push(f);
+            } else {
+                facts = facts.concat(_fs);
             }
-            return Reasoner.evaluate(facts, [], [], that.rMethod, that.rules);
-        })
-        .then(function(r) {                                   
+        }
+
+    }
+    return Reasoner.evaluate(facts, [], [], that.rMethod, that.rules)
+        .then(function(r) {
             that.registerDerivations(r);
-            for (var i = 0, j = r.additions.length; i < j; i += chunksNb) {
-                factsChunk = r.additions.slice(i,i+chunksNb);
-                chunks.push(ParsingInterface.factsToTurtle(factsChunk));
-            }
-            return;
-        })
-        .then(function() {            
-            console.notify('Classification succeeded.');
-            
-            return Promise.reduce(chunks, function(previous, chunk) {                
-                return that.sm.insert(chunk);
-            }, 0);
+            return that.sm.insert(r);
         })
         .then(function() {
             emitter.emit('update', that);

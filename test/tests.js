@@ -47,7 +47,7 @@ describe('Ontology Parsing and classification', function () {
         return Hylar.load(owl, mimeType, false, false, reasoningMethod)
         .then(function() {
             return Hylar.query(
-                'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
+                'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
         })
         .then(function(r) {
             before = r.length;
@@ -66,7 +66,7 @@ describe('INSERT query with derivations', function () {
             .then(function(i) {
                 i.should.be.true;
                 return Hylar.query(
-                    'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
+                    'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
             })
             .then(function(r) {
                 r.length.should.be.above(before);
@@ -145,7 +145,7 @@ describe('DELETE query with subsumption', function () {
             .then(function(i) {
                 i.should.be.true;
                 return Hylar.query(
-                    'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
+                    'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
             })
             .then(function(r) {
                 r.length.should.be.exactly(before);

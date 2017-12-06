@@ -24,22 +24,9 @@ function TripleStorageManager() {
      * @returns {*}
      */
 TripleStorageManager.prototype.init = function() {
-    var deferred = q.defer(),
-        that = this;
+    var deferred = q.defer();
     this.storage = rdflib.graph();
     deferred.resolve();
-
-    /*new rdfstore.create(function(err, store) {
-        if(err) {
-            deferred.reject(err);
-        } else {
-            that.storage = store;
-            that.storage.setPrefix('owl', Prefixes.OWL);
-            that.storage.setPrefix('rdf', Prefixes.RDF);
-            that.storage.setPrefix('rdfs', Prefixes.RDFS);
-            deferred.resolve();
-        }
-    });*/
     return deferred.promise;
 };
 
@@ -67,48 +54,38 @@ TripleStorageManager.prototype.loadRdfXml = function(data) {
  */
 TripleStorageManager.prototype.query = function(query) {
     var deferred = q.defer(),
-        query = query.replace(/\\/g, '').replace(/(\n|\r)/g, '\n'),
-        r = [],
-        formattedQuery;
+        parsedQuery = ParsingInterface.parseSPARQL(query),
+        query = ParsingInterface.serializeSPARQL(parsedQuery),
+        r = [], formattedQuery;
 
-    try {
-        formattedQuery = rdflib.SPARQLToQuery(query, false, this.storage);
+    if (parsedQuery.type && parsedQuery.type == "update") {
+        formattedQuery = rdflib.sparqlUpdateParser(query, this.storage, 'http://default.com');
+        this.storage.applyPatch(formattedQuery, this.storage.sym('http://default.com'),
+            function(err) {
+                if (err) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(true);
+                }
+            }
+        );
+    } else {
+
+        formattedQuery = rdflib.SPARQLToQuery(query, true, this.storage);
         this.storage.query(formattedQuery,
-            function(result){
-                r.push(result);
-            }, null,
-            function() {
+            function(el) {
+                r.push(el)
+            },
+            function(err) {
+                deferred.reject(err);
+            },
+            function(done) {
                 deferred.resolve(r);
             }
         );
-    } catch(e) {
-        try {
-            formattedQuery = rdflib.sparqlUpdateParser(query, this.storage, 'http://default.com');
-            rdflib.UpdateManager(this.storage).update_statement(formattedQuery.statements[0]);
-            /*this.storage.query(formattedQuery,
-                function(result){
-                    r.push(result);
-                }, null,
-                function() {
-                    deferred.resolve(r);
-                }
-            );*/
-        } catch(e) {
-            console.error("Query parse error: " + e.toString());
-        }
     }
 
-    /*try {
-        this.storage.execute(query, function (err, r) {
-            if(err) {            
-                deferred.reject(err);
-            } else {
-                deferred.resolve(r);
-            }
-        });
-    } catch(e) {
-        deferred.resolve(true);
-    }*/
+
     return deferred.promise;
 };
 
@@ -120,24 +97,15 @@ TripleStorageManager.prototype.query = function(query) {
  */
 TripleStorageManager.prototype.load = function(data, format) {
     var deferred = q.defer();
-
-    try {
-        rdflib.parse(data, this.storage, 'http://default.com', format, function(done) {
+    rdflib.parse(data, this.storage, 'http://www.default.com', format,
+        function(done) {
             deferred.resolve(done);
         });
-
-    } catch(e) {
-        deferred.reject(e);
-    }/*function (err, r) {
-        if(err) {
-            console.error(err.toString());
-            deferred.reject(err);
-        } else {
-            console.notify(r + ' triples loaded.');
-            deferred.resolve(r);
-        }
-    });*/
     return deferred.promise;
+};
+
+TripleStorageManager.prototype.getAll = function() {
+    return this.storage.statementsMatching(undefined, undefined, undefined);
 };
 
 /**
@@ -145,7 +113,7 @@ TripleStorageManager.prototype.load = function(data, format) {
  * @returns {*}
  */
 TripleStorageManager.prototype.clear = function()  {
-    return this.query('DELETE { ?a ?b ?c } WHERE { ?a ?b ?c }');
+    return this.query('DELETE { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
 };
 
 /**

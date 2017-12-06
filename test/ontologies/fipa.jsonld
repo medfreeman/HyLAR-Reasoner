@@ -1,0 +1,644 @@
+{"@context": {
+    "dcterms": "http://purl.org/dc/terms/",
+    "fipa": "http://sites.google.com/site/smartappliancesproject/ontologies/fipa#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "fipa:hasColor",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Has the value true if the device has a color screen; false if it has a monochrome screen.",
+      "rdfs:domain": {
+        "@id": "fipa:ScreenDescription"
+      },
+      "rdfs:label": "has color",
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      }
+    },
+    {
+      "@id": "_:ub32bL62C19",
+      "@type": "owl:Restriction",
+      "owl:minCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasAmount"
+      }
+    },
+    {
+      "@id": "fipa:hasGraphics",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Has the value true if the device is capable of displaying graphics; false if the device is capable of displaying only characters.",
+      "rdfs:domain": {
+        "@id": "fipa:ResolutionDescription"
+      },
+      "rdfs:label": "has graphics",
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      }
+    },
+    {
+      "@id": "fipa:ResolutionDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "description that can be used to define the resolution details of a given display",
+      "rdfs:label": "Resolution description",
+      "rdfs:subClassOf": [
+        {
+          "@id": "_:ub32bL89C19"
+        },
+        {
+          "@id": "_:ub32bL84C19"
+        }
+      ]
+    },
+    {
+      "@id": "fipa:hasUserInterface",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "List of the user interfaces that the device offers.",
+      "rdfs:domain": {
+        "@id": "fipa:HwDescription"
+      },
+      "rdfs:label": "has user interface",
+      "rdfs:range": {
+        "@id": "fipa:UIDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasVendor",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The vendor of the product in question",
+      "rdfs:domain": {
+        "@id": "fipa:InfoDescription"
+      },
+      "rdfs:label": "has vendor",
+      "rdfs:range": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "@id": "fipa:UIDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "description that can be used to define the user interface(s) of a given device",
+      "rdfs:label": "UIDescription"
+    },
+    {
+      "@id": "fipa:hasMemory",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "The amount of memory that the device has.",
+      "rdfs:domain": {
+        "@id": "fipa:HwDescription"
+      },
+      "rdfs:label": "has memory",
+      "rdfs:range": {
+        "@id": "fipa:MemoryDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasMemoryUsageType",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The usage type of the memory. Either application, storage, or both.",
+      "rdfs:domain": {
+        "@id": "fipa:MemoryTypeDescription"
+      },
+      "rdfs:label": "has memory usage type",
+      "rdfs:range": {
+        "@id": "_:ub32bL256C14"
+      }
+    },
+    {
+      "@id": "fipa:hasAmount",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The amount of memory. This value must not be negative.",
+      "rdfs:label": "has amount",
+      "rdfs:range": {
+        "@id": "xsd:integer"
+      }
+    },
+    {
+      "@id": "fipa:hasName",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The name of the product in question.",
+      "rdfs:domain": {
+        "@id": "fipa:InfoDescription"
+      },
+      "rdfs:label": "has name",
+      "rdfs:range": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "@id": "fipa:hasResolution",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "The resolution description for the screen.",
+      "rdfs:domain": {
+        "@id": "fipa:ScreenDescription"
+      },
+      "rdfs:label": "has resolution",
+      "rdfs:range": {
+        "@id": "fipa:ResolutionDescription"
+      }
+    },
+    {
+      "@id": "fipa:MemoryTypeDescription",
+      "@type": "owl:Class",
+      "rdfs:label": "Memory type description",
+      "rdfs:subClassOf": {
+        "@id": "_:ub32bL62C19"
+      }
+    },
+    {
+      "@id": "fipa:hasWidthHeightUnit",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The unit for the width and height parameters of the Screen Description class.",
+      "rdfs:domain": {
+        "@id": "fipa:ScreenDescription"
+      },
+      "rdfs:label": "has width height unit",
+      "rdfs:range": {
+        "@id": "_:ub32bL359C14"
+      }
+    },
+    {
+      "@id": "fipa:hasBpp",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Bits per pixel.",
+      "rdfs:domain": {
+        "@id": "fipa:ResolutionDescription"
+      },
+      "rdfs:label": "has bpp",
+      "rdfs:range": {
+        "@id": "xsd:integer"
+      }
+    },
+    {
+      "@id": "fipa:QoS",
+      "@type": "owl:Class",
+      "rdfs:comment": "The class QoS is part of the FIPA-Agent-Management ontology that can be found in [FIPA00014]",
+      "rdfs:label": "QoS",
+      "rdfs:subClassOf": {
+        "@id": "owl:Thing"
+      }
+    },
+    {
+      "@id": "_:ub32bL89C19",
+      "@type": "owl:Restriction",
+      "owl:minCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasWidth"
+      }
+    },
+    {
+      "@id": "_:ub32bL46C19",
+      "@type": "owl:Restriction",
+      "owl:minQualifiedCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onClass": {
+        "@id": "fipa:MemoryTypeDescription"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasAvailable"
+      }
+    },
+    {
+      "@id": "fipa:hasQoS",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "Detailed information about the Quality of Service of this connection type",
+      "rdfs:domain": {
+        "@id": "fipa:ConnectionDescription"
+      },
+      "rdfs:label": "has QoS",
+      "rdfs:range": {
+        "@id": "fipa:QoS"
+      }
+    },
+    {
+      "@id": "fipa:Function",
+      "@type": "owl:Class",
+      "rdfs:label": "Function"
+    },
+    {
+      "@id": "_:ub32bL298C14",
+      "@type": "rdfs:Datatype",
+      "owl:oneOf": {
+        "@list": [
+          "pixels",
+          "characters"
+        ]
+      }
+    },
+    {
+      "@id": "fipa:hasResolutionUnit",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The unit for the resolution.",
+      "rdfs:domain": {
+        "@id": "fipa:ResolutionDescription"
+      },
+      "rdfs:label": "has resolution unit",
+      "rdfs:range": {
+        "@id": "_:ub32bL298C14"
+      }
+    },
+    {
+      "@id": "_:ub32bL52C19",
+      "@type": "owl:Restriction",
+      "owl:minQualifiedCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onClass": {
+        "@id": "fipa:MemoryTypeDescription"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasMaximum"
+      }
+    },
+    {
+      "@id": "fipa:RequestDeviceInfo",
+      "@type": "owl:Class",
+      "rdfs:comment": "An agent can make a query in order to request the device information.",
+      "rdfs:label": "Request device info",
+      "rdfs:subClassOf": {
+        "@id": "fipa:Function"
+      }
+    },
+    {
+      "@id": "_:ub32bL109C19",
+      "@type": "owl:Restriction",
+      "owl:onProperty": {
+        "@id": "fipa:hasResolution"
+      },
+      "owl:someValuesFrom": {
+        "@id": "fipa:ResolutionDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasSwProperties",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "List of properties describing the software features of the device in question.",
+      "rdfs:domain": {
+        "@id": "fipa:Device"
+      },
+      "rdfs:label": "has sw properties",
+      "rdfs:range": {
+        "@id": "fipa:SwDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasType",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The type(s) of the device. General type(s) of devices like 3G phones, PDA's etc. To be used as a sequence from general to more specific types.",
+      "rdfs:domain": {
+        "@id": "fipa:Device"
+      },
+      "rdfs:label": "has type",
+      "rdfs:range": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "@id": "fipa:hasWidth",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The width of the screen or the number of resolution units horizontally. This value must be positive.",
+      "rdfs:label": "has width",
+      "rdfs:range": {
+        "@id": "xsd:integer"
+      }
+    },
+    {
+      "@id": "fipa:hasConnection",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "The type of the connection the device uses.",
+      "rdfs:domain": {
+        "@id": "fipa:HwDescription"
+      },
+      "rdfs:label": "has connection",
+      "rdfs:range": {
+        "@id": "fipa:ConnectionDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasOperatingSystem",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "Details of the operating system that the device has.",
+      "rdfs:domain": {
+        "@id": "fipa:SwDescription"
+      },
+      "rdfs:label": "has operating system",
+      "rdfs:range": {
+        "@id": "fipa:InfoDescription"
+      }
+    },
+    {
+      "@id": "_:ub32bL104C19",
+      "@type": "owl:Restriction",
+      "owl:minCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasWidth"
+      }
+    },
+    {
+      "@id": "_:ub32bL84C19",
+      "@type": "owl:Restriction",
+      "owl:minCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasHeight"
+      }
+    },
+    {
+      "@id": "fipa:hasConnectionInfo",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "General information for the connection.",
+      "rdfs:domain": {
+        "@id": "fipa:ConnectionDescription"
+      },
+      "rdfs:label": "has info",
+      "rdfs:range": {
+        "@id": "fipa:InfoDescription"
+      }
+    },
+    {
+      "@id": "fipa:ConnectionDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "description that can be used to define the connection-related details of a given device.",
+      "rdfs:label": "Connection description"
+    },
+    {
+      "@id": "fipa:Device",
+      "@type": "owl:Class",
+      "rdfs:comment": "Description that can be used to define the device with its most general properties",
+      "rdfs:label": "Device",
+      "rdfs:subClassOf": {
+        "@id": "_:ub32bL21C19"
+      }
+    },
+    {
+      "@id": "fipa:InfoDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "The description that can be used to define the name, vendor and version of some product.",
+      "rdfs:label": "Info description"
+    },
+    {
+      "@id": "fipa:hasDeviceInfo",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "General information for the device.",
+      "rdfs:domain": {
+        "@id": "fipa:Device"
+      },
+      "rdfs:label": "has info",
+      "rdfs:range": {
+        "@id": "fipa:InfoDescription"
+      }
+    },
+    {
+      "@id": "fipa:hasAudioInput",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Specifies whether the device in question is capable of receiving audio input.",
+      "rdfs:domain": {
+        "@id": "fipa:UIDescription"
+      },
+      "rdfs:label": "has audio input",
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      }
+    },
+    {
+      "@id": "fipa:hasAP",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "Description of the agent platform the device in question has. Can be used only if agent-compliancy of device level is either true or unspecified.",
+      "rdfs:domain": {
+        "@id": "fipa:SwDescription"
+      },
+      "rdfs:label": "has AP",
+      "rdfs:range": {
+        "@id": "fipa:AgentPlatformDescription"
+      }
+    },
+    {
+      "@id": "_:ub32bL256C14",
+      "@type": "rdfs:Datatype",
+      "owl:oneOf": {
+        "@list": [
+          "application",
+          "storage",
+          "application & storage"
+        ]
+      }
+    },
+    {
+      "@id": "fipa:AgentPlatformDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "The class AgentPlatformDescription is part of the FIPA-Nomadic-Application ontology that can be found in [FIPA00023]",
+      "rdfs:label": "Agent Platform description"
+    },
+    {
+      "@id": "fipa:SwDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "Description that can be used to define the software capabilities of a given device.",
+      "rdfs:label": "Software Description"
+    },
+    {
+      "@id": "_:ub32bL21C19",
+      "@type": "owl:Restriction",
+      "owl:onClass": {
+        "@id": "fipa:InfoDescription"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasDeviceInfo"
+      },
+      "owl:qualifiedCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "1"
+      }
+    },
+    {
+      "@id": "fipa:HwDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "Description that can be used to define the hardware capabilities of a given device",
+      "rdfs:label": "Hardware Description"
+    },
+    {
+      "@id": "fipa:MemoryDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "Description that can be used to define the maximum memory of a given device, as well as the memory available at the time of query.",
+      "rdfs:label": "Memory description",
+      "rdfs:subClassOf": [
+        {
+          "@id": "_:ub32bL46C19"
+        },
+        {
+          "@id": "_:ub32bL52C19"
+        }
+      ]
+    },
+    {
+      "@id": "fipa:hasMemoryUnit",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:domain": {
+        "@id": "fipa:MemoryTypeDescription"
+      },
+      "rdfs:label": "has memory unit",
+      "rdfs:range": {
+        "@id": "_:ub32bL242C14"
+      }
+    },
+    {
+      "@id": "fipa:hasCPU",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The type of the central processing unit that the device has.",
+      "rdfs:domain": {
+        "@id": "fipa:HwDescription"
+      },
+      "rdfs:label": "has CPU",
+      "rdfs:range": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "@id": "fipa:hasAvailable",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "The amount of memory available.",
+      "rdfs:label": "has available"
+    },
+    {
+      "@id": "fipa:hasAgentCompliancy",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Capability to host a FIPA-agent platform or participate in a distributed one.",
+      "rdfs:domain": {
+        "@id": "fipa:Device"
+      },
+      "rdfs:label": "has agent compliancy",
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      }
+    },
+    {
+      "@id": "fipa:hasMaximum",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "The maximum amount of memory ",
+      "rdfs:label": "has maximum"
+    },
+    {
+      "@id": "fipa:hasHeight",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The height of the screen or the number of resolution units vertically. This value must be positive.",
+      "rdfs:label": "has height ",
+      "rdfs:range": {
+        "@id": "xsd:integer"
+      }
+    },
+    {
+      "@id": "fipa:hasAudioOutput",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "Specifies whether the device in question is capable of producing audio output.",
+      "rdfs:domain": {
+        "@id": "fipa:UIDescription"
+      },
+      "rdfs:label": "has audio output",
+      "rdfs:range": {
+        "@id": "xsd:boolean"
+      }
+    },
+    {
+      "@id": "fipa:hasVersion",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:comment": "The version of the product in question",
+      "rdfs:domain": {
+        "@id": "fipa:InfoDescription"
+      },
+      "rdfs:label": "has version",
+      "rdfs:range": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "@id": "fipa:ScreenDescription",
+      "@type": "owl:Class",
+      "rdfs:comment": "description that can be used to define the screen of a given device.",
+      "rdfs:label": "Screen description",
+      "rdfs:subClassOf": [
+        {
+          "@id": "_:ub32bL104C19"
+        },
+        {
+          "@id": "_:ub32bL109C19"
+        },
+        {
+          "@id": "_:ub32bL99C19"
+        }
+      ]
+    },
+    {
+      "@id": "fipa:hasHwProperties",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "List of properties describing the hardware features of the device in question.",
+      "rdfs:domain": {
+        "@id": "fipa:Device"
+      },
+      "rdfs:label": "has hw properties",
+      "rdfs:range": {
+        "@id": "fipa:HwDescription"
+      }
+    },
+    {
+      "@id": "_:ub32bL359C14",
+      "@type": "rdfs:Datatype",
+      "owl:oneOf": {
+        "@list": [
+          "mm",
+          "cm",
+          "inch"
+        ]
+      }
+    },
+    {
+      "@id": "_:ub32bL242C14",
+      "@type": "rdfs:Datatype",
+      "owl:oneOf": {
+        "@list": [
+          "B",
+          "KB",
+          "MB"
+        ]
+      }
+    },
+    {
+      "@id": "fipa:hasScreen",
+      "@type": "owl:ObjectProperty",
+      "rdfs:comment": "Information characterizing the screen of the device.",
+      "rdfs:domain": {
+        "@id": "fipa:UIDescription"
+      },
+      "rdfs:label": "has screen",
+      "rdfs:range": {
+        "@id": "fipa:ScreenDescription"
+      }
+    },
+    {
+      "@id": "_:ub32bL99C19",
+      "@type": "owl:Restriction",
+      "owl:minCardinality": {
+        "@type": "xsd:nonNegativeInteger",
+        "@value": "0"
+      },
+      "owl:onProperty": {
+        "@id": "fipa:hasHeight"
+      }
+    }
+  ]
+}

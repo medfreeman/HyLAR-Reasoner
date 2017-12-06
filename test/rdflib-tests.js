@@ -10,8 +10,8 @@ var showRes = function(res) {
 
 describe('RDFLib tests', function () {
     it('should load an ontology', function () {
-        var ontoStr = fs.readFileSync('./test/ontologies/fipa.ttl');
-        $rdf.parse(ontoStr, graph, "http://sites.google.com/site/smartappliancesproject/ontologies/fipa", 'text/turtle');
+        var ontoStr = fs.readFileSync('./test/ontologies/fipa.jsonld');
+        $rdf.parse(ontoStr, graph, "http://example.com/test", 'application/ld+json');
     });
 
     it('should process SPARQL', function () {
