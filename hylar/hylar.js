@@ -65,7 +65,8 @@ Hylar = function() {
     this.rules = OWL2RL.test;
     this.queryHistory = [];
     this.sm.init();
-    this.computeRuleDependencies();  
+    this.computeRuleDependencies();
+    this.setTagBased();
 };
 
 Hylar.prototype.computeRuleDependencies = function() {
@@ -96,14 +97,6 @@ Hylar.prototype.setTagBased = function() {
     console.notify('Reasoner set as tag-based.');
 };
 
-/**
- * Puts on tag-based reasoning using backward/forward algorithm
- */
-Hylar.prototype.setIncrementalBf = function() {
-    this.rMethod = Reasoner.process.it.incrementallyBf;
-    console.notify('Reasoner set as incremental b/f.');
-};
-
 Hylar.prototype.setRules = function(rules) {
     this.rules = rules;
 };
@@ -119,9 +112,6 @@ Hylar.prototype.updateReasoningMethod = function(method) {
             break;
         case 'incremental':
             this.setIncremental();
-            break;
-        case 'incrementalBf':
-            this.setIncrementalBf();
             break;
         default:
             if (this.rMethod === undefined) {
@@ -143,26 +133,24 @@ Hylar.prototype.updateReasoningMethod = function(method) {
  */
 Hylar.prototype.load = function(ontologyTxt, mimeType, keepOldValues, graph, reasoningMethod) {
     var that = this;
-    emitter.emit('classif-started');
+    var treatLoad = function(ontologyTxt, mimeType, graph) {
+        that.sm.load(ontologyTxt, mimeType, graph)
+            .then(function() {
+                emitter.emit('classif-started');
+                return that.classify();
+            });
+    };
+
     this.updateReasoningMethod(reasoningMethod);
 
     if (!keepOldValues) {
         this.dict.clear();
         return this.sm.init().then(function() {
-            return that.treatLoad(ontologyTxt, mimeType, graph);
+            return treatLoad(ontologyTxt, mimeType, graph);
         });
     } else {
-        return this.treatLoad(ontologyTxt, mimeType, graph);
+        return treatLoad(ontologyTxt, mimeType, graph);
     }
-};
-
-Hylar.prototype.treatLoad = function(ontologyTxt, mimeType, graph) {
-    var that = this;
-
-    this.sm.load(ontologyTxt, mimeType, graph)
-        .then(function() {
-            return that.classify();
-        });
 };
 
 /**
@@ -172,8 +160,7 @@ Hylar.prototype.treatLoad = function(ontologyTxt, mimeType, graph) {
  */
 Hylar.prototype.query = function(query, reasoningMethod) {
     var sparql = ParsingInterface.parseSPARQL(query),
-        singleWhereQueries = [], that = this,
-        updateResults;
+        singleWhereQueries = [], that = this;
 
     this.updateReasoningMethod(reasoningMethod);
 
@@ -407,7 +394,7 @@ Hylar.prototype.treatSelectOrConstruct = function(query) {
 
         return this.sm.query(constructEquivalentQuery)
             .then(function(r) {
-                triples = r.triples;
+                triples = r;
                 val = that.dict.findValues(triples, graph);
                 facts = val.found;
                 blanknodes = val.notfound;
@@ -433,7 +420,8 @@ Hylar.prototype.treatSelectOrConstruct = function(query) {
  */
 Hylar.prototype.registerDerivations = function(derivations, graph) {
     var factsToBeAdded = derivations.additions,
-        factsToBeDeleted = derivations.deletions;
+        factsToBeDeleted = derivations.deletions,
+        strFact, ttl = "";
     graph = this.dict.resolveGraph(graph);
     console.notify('Registering derivations to dictionary...');
 
@@ -441,14 +429,18 @@ Hylar.prototype.registerDerivations = function(derivations, graph) {
         if (factsToBeDeleted[i].toString() == 'IFALSE') {
             delete this.dict.dict[graph]['__FALSE__'];
         } else {
-            delete this.dict.dict[graph][ParsingInterface.factToTurtle(factsToBeDeleted[i])];
+            strFact = ParsingInterface.factToTurtle(factsToBeDeleted[i]);
+            ttl += '\n' + strFact;
+            delete this.dict.dict[graph][strFact];
         }
     }
 
     for (var i = 0; i < factsToBeAdded.length; i++) {
-        this.dict.put(factsToBeAdded[i], graph);
+        strFact = ParsingInterface.factToTurtle(factsToBeAdded[i]);
+        ttl += '\n' + strFact;
+        this.dict.put(factsToBeAdded[i], strFact, graph);
     }
-
+    return ttl;
     console.notify('Registered successfully.');
 };
 
@@ -472,7 +464,7 @@ Hylar.prototype.classify = function() {
                 triple.object.termType == "BlankNode"
             )) {
             _fs = that.dict.get(triple);
-            if(!_fs) {
+            if (!_fs) {
                 f = ParsingInterface.tripleToFact(triple, true, (that.rMethod == Reasoner.process.it.incrementally));
                 that.dict.put(f);
                 facts.push(f);
@@ -480,11 +472,10 @@ Hylar.prototype.classify = function() {
                 facts = facts.concat(_fs);
             }
         }
-
     }
     return Reasoner.evaluate(facts, [], [], that.rMethod, that.rules)
         .then(function(r) {
-            that.registerDerivations(r);
+            r = that.registerDerivations(r);
             return that.sm.insert(r);
         })
         .then(function() {

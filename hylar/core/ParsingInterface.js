@@ -114,6 +114,9 @@ ParsingInterface = {
         entityStr = entityStr.replace(/(\n|\r)/g, '');
 
         if (entityStr === undefined) return false;
+        if (entityStr.startsWith('_')) {
+            return '_:'+entityStr;
+        }
 
         if (entityStr.match(dblQuoteInStrPattern)) {
             dblQuoteMatch = entityStr.match(dblQuoteInStrPattern);
@@ -122,7 +125,9 @@ ParsingInterface = {
 
         if (entityStr.match(literalPattern)) {
             return entityStr.replace(literalPattern, '$1<$2>');
-        } else if(entityStr.match(blankNodePattern) || entityStr.match(variablePattern) || entityStr.match(typeOfDatatypePattern) || entityStr.match(dblQuoteInStrPattern)) {
+        } else if (!entityStr.startsWith('?') && !entityStr.startsWith('http://')) {
+            return '"' + entityStr + '"';
+        } else if(entityStr.match(variablePattern) || entityStr.match(typeOfDatatypePattern) || entityStr.match(dblQuoteInStrPattern)) {
             return entityStr;
         } else {
             return '<' + entityStr + '>';
@@ -181,7 +186,13 @@ ParsingInterface = {
      * @returns {*}
      */
     parseSPARQL: function(query) {
-        return SparqlParser.parse(query);
+        var parsed;
+        try {
+            parsed = SparqlParser.parse(query);
+        } catch(e) {
+            console.error(e);
+        }
+        return parsed;
     },
 
     serializeSPARQL: function(sparql) {

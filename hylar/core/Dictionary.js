@@ -104,7 +104,7 @@ Dictionary.prototype.get = function(ttl, graph) {
  * @param fact
  * @returns {*}
  */
-Dictionary.prototype.put = function(fact, graph) {
+Dictionary.prototype.put = function(fact, strFact, graph) {
     var timestamp = new Date().getTime(), factToTurtle;
 
     if (this.allowPurge) {
@@ -118,7 +118,7 @@ Dictionary.prototype.put = function(fact, graph) {
         if(fact.predicate === 'FALSE') {
             this.dict[graph]['__FALSE__'] = [fact];
         } else {
-            factToTurtle = ParsingInterface.factToTurtle(fact);
+            factToTurtle = strFact;
             if (this.dict[graph][factToTurtle]) {
                 this.dict[graph][factToTurtle] = Utils.insertUnique(this.dict[graph][factToTurtle], fact);
             } else {

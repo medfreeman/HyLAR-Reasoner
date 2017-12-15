@@ -17,6 +17,17 @@ var a, b;
 
 var reasoningMethod = process.env.rm, ontologyFilename = '/ontologies/fipa.ttl';
 
+var clres = function(t) {
+    var tclean = [];
+    for (var iel in t) {
+        var el = t[iel];
+        if(!(el['?c'].termType == "Graph")) {
+            tclean.push(el);
+        }
+    }
+    return tclean;
+};
+
 describe('File access', function () {
     it('should access the file', function () {
         var exists = fs.existsSync(path.resolve(__dirname + ontologyFilename));
@@ -50,9 +61,9 @@ describe('Ontology Parsing and classification', function () {
                 'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
         })
         .then(function(r) {
-            before = r.length;
+            before = r;
             b=r;
-            r.length.should.be.above(0);
+            clres(r).length.should.be.above(0);
         });
     });
 });
@@ -69,8 +80,8 @@ describe('INSERT query with derivations', function () {
                     'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
             })
             .then(function(r) {
-                r.length.should.be.above(before);
-                bIns = r.length;
+                r.length.should.be.above(before.length);
+                bIns = r;
             });
 
     });
@@ -148,7 +159,14 @@ describe('DELETE query with subsumption', function () {
                     'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
             })
             .then(function(r) {
-                r.length.should.be.exactly(before);
+                var diff = [];
+                r = clres(r);
+                for (var k in r) {
+                    if (before[k] === undefined) {
+                        diff.push(r[k]);
+                    }
+                }
+                clres(r).length.should.be.exactly(before.length);
             });
     });
 });
@@ -220,10 +238,10 @@ describe('Re-INSERT exact same query', function () {
             .then(function(i) {
                 i.should.be.true;
                 return Hylar.query(
-                    'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
+                    'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
             })
             .then(function(r) {
-                r.length.should.be.exactly(bIns);
+                clres(r).length.should.be.exactly(bIns.length);
             });
     });
 });
@@ -300,7 +318,7 @@ describe('DELETE query with subsumption', function () {
                     'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
             })
             .then(function(r) {
-                r.length.should.be.exactly(before);
+                clres(r).length.should.be.exactly(before.length);
             });
     });
 });
@@ -375,7 +393,7 @@ describe('Re-INSERT exact same query', function () {
                     'CONSTRUCT { ?a ?b ?c } WHERE { ?a ?b ?c }');
             })
             .then(function(r) {
-                r.length.should.be.exactly(bIns);
+                clres(r).length.should.be.exactly(bIns.length);
             });
     });
 });

@@ -15,7 +15,7 @@ var q = require('q');
  */
 
 function TripleStorageManager() {
-    //
+    this.DEFAULT_GRAPH = 'http://www.default.com'
 }
 
     /**
@@ -52,15 +52,19 @@ TripleStorageManager.prototype.loadRdfXml = function(data) {
  * @param query
  * @returns {*}
  */
-TripleStorageManager.prototype.query = function(query) {
-    var deferred = q.defer(),
+TripleStorageManager.prototype.query = function(query, store) {
+    var deferred = q.defer(), storage = this.storage,
         parsedQuery = ParsingInterface.parseSPARQL(query),
         query = ParsingInterface.serializeSPARQL(parsedQuery),
         r = [], formattedQuery;
 
+    if (store) {
+        storage = store;
+    }
+
     if (parsedQuery.type && parsedQuery.type == "update") {
-        formattedQuery = rdflib.sparqlUpdateParser(query, this.storage, 'http://default.com');
-        this.storage.applyPatch(formattedQuery, this.storage.sym('http://default.com'),
+        formattedQuery = rdflib.sparqlUpdateParser(query, storage, this.DEFAULT_GRAPH);
+        storage.applyPatch(formattedQuery, storage.sym(this.DEFAULT_GRAPH),
             function(err) {
                 if (err) {
                     deferred.reject(err);
@@ -71,10 +75,10 @@ TripleStorageManager.prototype.query = function(query) {
         );
     } else {
 
-        formattedQuery = rdflib.SPARQLToQuery(query, true, this.storage);
-        this.storage.query(formattedQuery,
+        formattedQuery = rdflib.SPARQLToQuery(query, true, storage);
+        storage.query(formattedQuery,
             function(el) {
-                r.push(el)
+                r.push(el);
             },
             function(err) {
                 deferred.reject(err);
@@ -84,7 +88,6 @@ TripleStorageManager.prototype.query = function(query) {
             }
         );
     }
-
 
     return deferred.promise;
 };
@@ -97,7 +100,7 @@ TripleStorageManager.prototype.query = function(query) {
  */
 TripleStorageManager.prototype.load = function(data, format) {
     var deferred = q.defer();
-    rdflib.parse(data, this.storage, 'http://www.default.com', format,
+    rdflib.parse(data, this.storage, this.DEFAULT_GRAPH, format,
         function(done) {
             deferred.resolve(done);
         });
@@ -173,11 +176,10 @@ TripleStorageManager.prototype.regenerateSideStore = function() {
     var deferred = q.defer(),
         that = this;
 
-    /*new rdfstore.create(function(err, store) {
-        that.sideStore = store;
+        that.sideStore = rdflib.graph();
         deferred.resolve();
-    });
-    return deferred.promise;*/
+
+    return deferred.promise;
 };
 
 TripleStorageManager.prototype.loadIntoSideStore = function(ttl, graph) {
@@ -188,26 +190,14 @@ TripleStorageManager.prototype.loadIntoSideStore = function(ttl, graph) {
         query = 'INSERT DATA { GRAPH <' + graph + '> { ' + ttl + ' } }'
     }
 
-    try {
-        this.sideStore.execute(query,
-            function (err, r) {
-                deferred.resolve(r);
-            });
-    } catch(e) {
-        deferred.reject(e + "\n@" + this.constructor.name);
-        throw e;
-    }
+    return this.query(query, this.sideStore);
 
     return deferred.promise;
 };
 
 TripleStorageManager.prototype.querySideStore = function(query) {
     var deferred = q.defer();
-    this.sideStore.execute(query,
-        function(err, r) {
-            deferred.resolve(r);
-        });
-    return deferred.promise;
+    return this.query(query, this.sideStore);
 };
 
 module.exports = TripleStorageManager;
