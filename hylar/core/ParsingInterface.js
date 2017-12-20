@@ -65,22 +65,28 @@ ParsingInterface = {
      * @param explicit True if the resulting fact is explicit, false otherwise (default: true)
      * @returns Object resulting fact
      */
-    tripleToFact: function(t, explicit, notUsingValid) {
-        var fact;
+    tripleToFact: function(t, explicit, notUsingValid, ttl) {
+        var fact, str;
         if(explicit === undefined) {
             explicit = true;
         }
 
+        if (ttl) {
+            str = ttl;
+        } else {
+            str = t.toString();
+        }
+
         if (typeof t.subject === 'string') {
-            fact = new Fact(t.predicate, t.subject, t.object/*.format()*/, [], explicit, [], [], notUsingValid, t.toString());
+            fact = new Fact(t.predicate, t.subject, t.object, [], explicit, [], [], notUsingValid, str);
         } else  {
-            fact = new Fact(t.predicate.value, t.subject.value, t.object.value/*.format()*/, [], explicit, [], [], notUsingValid, t.toString());
+            fact = new Fact(t.predicate.value, t.subject.value, t.object.value, [], explicit, [], [], notUsingValid, str);
         }
         return fact;
     },
 
     triplesToFacts: function(t, explicit, notUsingValid) {
-        var arr = [], triple,
+        var arr = [], triple, ttl,
             that = this;
 
         if(explicit === undefined) {
@@ -88,8 +94,8 @@ ParsingInterface = {
         }
 
         for (var i = 0; i < t.length; i++) {
-            triple = t[i];
-            arr.push(that.tripleToFact(triple, explicit, notUsingValid));
+            ttl = ParsingInterface.tripleToTurtle(t[i]);
+            arr.push(that.tripleToFact(t[i], explicit, notUsingValid, ttl));
         }
         return arr;
     },
@@ -114,9 +120,6 @@ ParsingInterface = {
         entityStr = entityStr.replace(/(\n|\r)/g, '');
 
         if (entityStr === undefined) return false;
-        if (entityStr.startsWith('_')) {
-            return '_:'+entityStr;
-        }
 
         if (entityStr.match(dblQuoteInStrPattern)) {
             dblQuoteMatch = entityStr.match(dblQuoteInStrPattern);
@@ -126,7 +129,7 @@ ParsingInterface = {
         if (entityStr.match(literalPattern)) {
             return entityStr.replace(literalPattern, '$1<$2>');
         } else if (!entityStr.startsWith('?') && !entityStr.startsWith('http://')) {
-            return '"' + entityStr + '"';
+            return '' + entityStr + '';
         } else if(entityStr.match(variablePattern) || entityStr.match(typeOfDatatypePattern) || entityStr.match(dblQuoteInStrPattern)) {
             return entityStr;
         } else {
@@ -142,9 +145,9 @@ ParsingInterface = {
     factToTurtle: function(fact) {
         var subject, predicate, object;
 
-        /*if (fact.fromTriple !== undefined) {
+        if (fact.fromTriple !== undefined) {
             return fact.fromTriple;
-        }*/
+        }
 
         if(fact.falseFact) {
             return '';

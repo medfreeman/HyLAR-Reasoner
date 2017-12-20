@@ -66,7 +66,6 @@ Hylar = function() {
     this.queryHistory = [];
     this.sm.init();
     this.computeRuleDependencies();
-    this.setTagBased();
 };
 
 Hylar.prototype.computeRuleDependencies = function() {

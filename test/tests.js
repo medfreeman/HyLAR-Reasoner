@@ -22,11 +22,17 @@ var clres = function(t) {
     for (var iel in t) {
         var el = t[iel];
         if(!(el['?c'].termType == "Graph")) {
+            // noinspection JSAnnotator
+            /*el.__proto__.toString = function() {
+                return '<'+el['?a'].value + '> <' + el['?b'].value + '> <' + el['?c'].value + '> . ';
+            }*/
             tclean.push(el);
         }
     }
     return tclean;
 };
+
+//Hylar.setTagBased();
 
 describe('File access', function () {
     it('should access the file', function () {
@@ -61,8 +67,8 @@ describe('Ontology Parsing and classification', function () {
                 'CONSTRUCT { ?a ?b ?c . } WHERE { ?a ?b ?c . }');
         })
         .then(function(r) {
-            before = r;
-            b=r;
+            before = clres(r);
+            b=clres(r);
             clres(r).length.should.be.above(0);
         });
     });
@@ -81,7 +87,7 @@ describe('INSERT query with derivations', function () {
             })
             .then(function(r) {
                 r.length.should.be.above(before.length);
-                bIns = r;
+                bIns = clres(r);
             });
 
     });

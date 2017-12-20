@@ -200,6 +200,9 @@ Logics = {
      * @returns {boolean}
      */
     isVariable: function(str) {
+        if (str === undefined) {
+            return false;
+        }
         try {
             return (str.indexOf('?') === 0);
         } catch(e) {
