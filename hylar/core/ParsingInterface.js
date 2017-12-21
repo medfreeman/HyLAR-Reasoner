@@ -77,11 +77,12 @@ ParsingInterface = {
             str = t.toString();
         }
 
-        if (typeof t.subject === 'string') {
-            fact = new Fact(t.predicate, t.subject, t.object, [], explicit, [], [], notUsingValid, str);
-        } else  {
-            fact = new Fact(t.predicate.value, t.subject.value, t.object.value, [], explicit, [], [], notUsingValid, str);
+        if (typeof t.subject !== 'string') {
+            t = Utils.normalizeTriple(t);
         }
+
+        fact = new Fact(t.predicate, t.subject, t.object, [], explicit, [], [], notUsingValid, str);
+
         return fact;
     },
 
@@ -128,7 +129,7 @@ ParsingInterface = {
 
         if (entityStr.match(literalPattern)) {
             return entityStr.replace(literalPattern, '$1<$2>');
-        } else if (!entityStr.startsWith('?') && !entityStr.startsWith('http://')) {
+        } else if (!entityStr.startsWith('?') && !(entityStr.startsWith('http://') || entityStr.startsWith('https://'))) {
             return '' + entityStr + '';
         } else if(entityStr.match(variablePattern) || entityStr.match(typeOfDatatypePattern) || entityStr.match(dblQuoteInStrPattern)) {
             return entityStr;
@@ -193,7 +194,7 @@ ParsingInterface = {
         try {
             parsed = SparqlParser.parse(query);
         } catch(e) {
-            console.error(e);
+            console.error(e.stack);
         }
         return parsed;
     },

@@ -147,5 +147,21 @@ module.exports = {
         } else {
             return '"' + elem.replace(/[^a-zA-Z]/g,'') + '"';
         }        
+    },
+
+    normalizeTriple: function(triple) {
+        function normalizeAtom(atom) {
+            if (atom.value === undefined) {
+                return atom.toNT();
+            }
+            return atom.value;
+        }
+
+
+        return {
+          subject: normalizeAtom(triple.subject),
+          predicate: normalizeAtom(triple.predicate),
+          object: normalizeAtom(triple.object)
+        };
     }
 };

@@ -107,7 +107,7 @@ TripleStorageManager.prototype.load = function(data, format) {
     return deferred.promise;
 };
 
-TripleStorageManager.prototype.getAll = function() {
+TripleStorageManager.prototype. getAll= function() {
     return this.storage.statementsMatching(undefined, undefined, undefined);
 };
 

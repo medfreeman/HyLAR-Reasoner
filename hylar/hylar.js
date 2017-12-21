@@ -133,7 +133,7 @@ Hylar.prototype.updateReasoningMethod = function(method) {
 Hylar.prototype.load = function(ontologyTxt, mimeType, keepOldValues, graph, reasoningMethod) {
     var that = this;
     var treatLoad = function(ontologyTxt, mimeType, graph) {
-        that.sm.load(ontologyTxt, mimeType, graph)
+        return that.sm.load(ontologyTxt, mimeType, graph)
             .then(function() {
                 emitter.emit('classif-started');
                 return that.classify();
@@ -439,8 +439,8 @@ Hylar.prototype.registerDerivations = function(derivations, graph) {
         ttl += '\n' + strFact;
         this.dict.put(factsToBeAdded[i], strFact, graph);
     }
-    return ttl;
     console.notify('Registered successfully.');
+    return ttl;
 };
 
 /**
@@ -457,21 +457,24 @@ Hylar.prototype.classify = function() {
 
     for (var i = 0; i <  data.length; i++) {
         triple = data[i];
-        if(!(
+        if (!(
                 triple.subject.termType == "BlankNode" ||
                 triple.predicate.termType == "BlankNode" ||
-                triple.object.termType == "BlankNode"
+                triple.object.termType == "BlankNode" ||
+                triple.object.termType == "Graph"
             )) {
-            _fs = that.dict.get(triple);
-            if (!_fs) {
-                f = ParsingInterface.tripleToFact(triple, true, (that.rMethod == Reasoner.process.it.incrementally));
-                that.dict.put(f);
-                facts.push(f);
-            } else {
-                facts = facts.concat(_fs);
-            }
+
+                _fs = that.dict.get(triple);
+                if (!_fs) {
+                    f = ParsingInterface.tripleToFact(triple, true, (that.rMethod == Reasoner.process.it.incrementally));
+                    that.dict.put(f);
+                    facts.push(f);
+                } else {
+                    facts = facts.concat(_fs);
+                }
         }
     }
+
     return Reasoner.evaluate(facts, [], [], that.rMethod, that.rules)
         .then(function(r) {
             r = that.registerDerivations(r);
